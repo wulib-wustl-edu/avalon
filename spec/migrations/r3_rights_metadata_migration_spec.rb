@@ -36,16 +36,16 @@ describe R2ContentToR3 do
     end
 
     it "should add user exceptions to read access" do
-      expect(mediaobject.read_users.include? "cjcolvar").to be_true
+      expect(mediaobject.read_users.include? "cjcolvar").to be_truthy
     end
 
     it "should add group exceptions to read access" do
-      expect(mediaobject.read_groups.include? "TestGroup").to be_true
+      expect(mediaobject.read_groups.include? "TestGroup").to be_truthy
       expect(mediaobject.read_groups.size).to eq 3
     end
 
     it "should remove exceptions access node" do
-      expect(mediaobject.rightsMetadata.ng_xml.xpath("//rm:access[@type='exceptions']", {'rm' => 'http://hydra-collab.stanford.edu/schemas/rightsMetadata/v1'}).empty?).to be_true
+      expect(mediaobject.rightsMetadata.ng_xml.xpath("//rm:access[@type='exceptions']", {'rm' => 'http://hydra-collab.stanford.edu/schemas/rightsMetadata/v1'}).empty?).to be_truthy
     end
 
     it "should not attempt to remove exceptions if node does not exist" do

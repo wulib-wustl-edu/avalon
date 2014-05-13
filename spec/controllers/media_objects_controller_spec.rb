@@ -25,19 +25,19 @@ describe MediaObjectsController, type: :controller do
 
     it "should redirect to sign in page with a notice when unauthenticated" do
       expect { get 'new', collection_id: collection.pid }.not_to change { MediaObject.count }
-      flash[:notice].should_not be_nil
-      response.should redirect_to(new_user_session_path)
+      expect(flash[:notice]).not_to be_nil
+      expect(response).to redirect_to(new_user_session_path)
     end
   
     it "should redirect to home page with a notice when authenticated but unauthorized" do
       login_as :user
       expect { get 'new', collection_id: collection.pid }.not_to change { MediaObject.count }
-      flash[:notice].should_not be_nil
-      response.should redirect_to(root_path)
+      expect(flash[:notice]).not_to be_nil
+      expect(response).to redirect_to(root_path)
     end
 
     it "should not let manager of other collections create an item in this collection" do
-      pending
+      skip
     end
 
     context "Default permissions should be applied" do
@@ -45,7 +45,7 @@ describe MediaObjectsController, type: :controller do
         login_user collection.managers.first
         expect { get 'new', collection_id: collection.pid }.to change { MediaObject.count }
         pid = MediaObject.all.last.pid
-        response.should redirect_to(edit_media_object_path(id: pid))
+        expect(response).to redirect_to(edit_media_object_path(id: pid))
       end
 
       it "should copy default permissions from its owning collection" do
@@ -65,28 +65,28 @@ describe MediaObjectsController, type: :controller do
 
     it "should redirect to sign in page with a notice when unauthenticated" do   
       get 'edit', id: media_object.pid
-      flash[:notice].should_not be_nil
-      response.should redirect_to(new_user_session_path)
+      expect(flash[:notice]).not_to be_nil
+      expect(response).to redirect_to(new_user_session_path)
     end
   
     it "should redirect to show page with a notice when authenticated but unauthorized" do
       login_as :user
       
       get 'edit', id: media_object.pid
-      flash[:notice].should_not be_nil
-      response.should redirect_to(media_object_path(media_object.pid) )
+      expect(flash[:notice]).not_to be_nil
+      expect(response).to redirect_to(media_object_path(media_object.pid) )
     end
 
     it "should redirect to first workflow step if authorized to edit" do
        login_user media_object.collection.managers.first
 
        get 'edit', id: media_object.pid
-       response.should be_success
-       response.should render_template "_#{HYDRANT_STEPS.first.template}"
+       expect(response).to be_success
+       expect(response).to render_template "_#{HYDRANT_STEPS.first.template}"
      end
     
     it "should not default to the Access Control page" do
-      pending "[VOV-1165] Wait for product owner feedback on which step to default to"
+      skip "[VOV-1165] Wait for product owner feedback on which step to default to"
     end
 
     context "Updating the metadata should result in valid input" do
@@ -99,7 +99,7 @@ describe MediaObjectsController, type: :controller do
         # Set the task so that it can get to the resource-description step
         login_user media_object.collection.managers.first
         get :edit, {id: media_object.pid, step: 'resource-description'}
-        response.response_code.should == 200
+        expect(response.response_code).to eq(200)
       end
     end
   end
@@ -110,18 +110,18 @@ describe MediaObjectsController, type: :controller do
     context "Known items should be retrievable" do
       it "should be accesible by its PID" do
         get :show, id: media_object.pid
-        response.response_code.should == 200
+        expect(response.response_code).to eq(200)
       end
 
       it "should return an error if the PID does not exist" do
         get :show, id: 'no-such-object'
-        response.response_code.should == 404
+        expect(response.response_code).to eq(404)
       end
 
       it "should be available to a manager when unpublished" do
         login_user media_object.collection.managers.first
         get 'show', id: media_object.pid
-        response.should_not redirect_to new_user_session_path
+        expect(response).not_to redirect_to new_user_session_path
       end
 
       it "should provide a JSON stream description to the client" do
@@ -136,7 +136,7 @@ describe MediaObjectsController, type: :controller do
           package_id = part.mediapackage_id 
           get 'show', id: media_object.pid, format: 'json', content: part.pid
           json_obj = JSON.parse(response.body)
-          json_obj['mediapackage_id'].should == part.mediapackage_id
+          expect(json_obj['mediapackage_id']).to eq(part.mediapackage_id)
         }
       end
     end
@@ -147,7 +147,7 @@ describe MediaObjectsController, type: :controller do
       context 'Before sign in' do
         it 'persists the current url on the session' do
           get 'show', id: media_object.pid
-          session[:previous_url].should eql media_object_path(media_object)
+          expect(session[:previous_url]).to eql media_object_path(media_object)
         end
       end
 
@@ -166,17 +166,17 @@ describe MediaObjectsController, type: :controller do
     context "Items should not be available to unauthorized users" do
       it "should redirect to sign in when not logged in and item is unpublished" do
         media_object.publish!(nil)
-        media_object.should_not be_published
+        expect(media_object).not_to be_published
         get 'show', id: media_object.pid
-        response.should redirect_to new_user_session_path
+        expect(response).to redirect_to new_user_session_path
       end
 
       it "should redirect to home page when logged in and item is unpublished" do
         media_object.publish!(nil)
-        media_object.should_not be_published
+        expect(media_object).not_to be_published
         login_as :user
         get 'show', id: media_object.pid
-        response.should redirect_to root_path
+        expect(response).to redirect_to root_path
       end
     end
   end
@@ -189,20 +189,20 @@ describe MediaObjectsController, type: :controller do
     
     it "should remove the MediaObject from the system" do
       delete :destroy, id: media_object.pid
-      MediaObject.exists?(media_object.pid).should == false
+      expect(MediaObject.exists?(media_object.pid)).to eq(false)
     end
 
     it "should not be accessible through the search interface" do
       delete :destroy, id: media_object.pid
-      pending "Figure out how to make the right query against Solr"
+      skip "Figure out how to make the right query against Solr"
     end
 
     # This test may need to be more robust to catch errors but is just a first cut
     # for the time being
     it "should not be possible to delete an object which does not exist" do
-      pending "Fix access controls to stop throwing exception"
+      skip "Fix access controls to stop throwing exception"
       delete :destroy, id: 'avalon:this-pid-is-fake'
-      response.should redirect_to root_path
+      expect(response).to redirect_to root_path
     end
   end
 
@@ -217,15 +217,15 @@ describe MediaObjectsController, type: :controller do
     it 'publishes media object' do
       get 'update_status', :id => media_object.pid, :status => 'publish'
       mo = MediaObject.find(media_object.pid)
-      mo.published?.should be_true
-      mo.permalink.should be_present
+      expect(mo.published?).to be_truthy
+      expect(mo.permalink).to be_present
     end
 
     it 'unpublishes media object' do
       media_object.avalon_publisher = media_object.collection.managers.first
       media_object.save
       get 'update_status', :id => media_object.pid, :status => 'unpublish' 
-      MediaObject.find(media_object.pid).published?.should be_false
+      expect(MediaObject.find(media_object.pid).published?).to be_falsey
     end
   end
 
@@ -243,7 +243,7 @@ describe MediaObjectsController, type: :controller do
       
       put 'update', :id => media_object.pid, :masterfile_ids => master_file_pids.reverse, :step => 'structure'
       media_object.reload
-      media_object.section_pid.should eq master_file_pids.reverse
+      expect(media_object.section_pid).to eq master_file_pids.reverse
     end
   end
 end

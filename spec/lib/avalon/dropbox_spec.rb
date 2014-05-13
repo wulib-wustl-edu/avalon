@@ -21,12 +21,12 @@ describe Avalon::Dropbox do
   describe "#delete" do
     subject { Avalon::Dropbox.new Avalon::Configuration.lookup('dropbox.path') }
     it 'returns true if the file is found' do
-      File.stub(:delete).and_return true
+      allow(File).to receive(:delete).and_return true
       subject.delete('some_file.mov')
     end
 
     it 'returns false if the file is not found' do
-      subject.delete('some_file.mov').should be_false
+      expect(subject.delete('some_file.mov')).to be_falsey
     end
 
   end

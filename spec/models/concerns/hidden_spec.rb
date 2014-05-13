@@ -13,14 +13,14 @@ describe Avalon::AccessControls::Hidden do
 
   describe "hidden" do
     it "should default to discoverable" do
-      subject.hidden?.should be_false
-      subject.to_solr["hidden_bsi"].should be_false
+      expect(subject.hidden?).to be_falsey
+      expect(subject.to_solr["hidden_bsi"]).to be_falsey
     end
 
     it "should set hidden?" do
       subject.hidden = true
-      subject.hidden?.should be_true
-      subject.to_solr["hidden_bsi"].should be_true
+      expect(subject.hidden?).to be_truthy
+      expect(subject.to_solr["hidden_bsi"]).to be_truthy
     end
   end
 end

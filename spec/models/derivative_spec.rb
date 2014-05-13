@@ -23,17 +23,17 @@ describe Derivative do
       mf.save
       derivative.save
 
-      derivative.relationships(:is_derivation_of).size.should == 0
-      mf.relationships(:has_derivation).size.should == 0
+      expect(derivative.relationships(:is_derivation_of).size).to eq(0)
+      expect(mf.relationships(:has_derivation).size).to eq(0)
 
       derivative.masterfile = mf
 
-      derivative.relationships(:is_derivation_of).size.should == 1
+      expect(derivative.relationships(:is_derivation_of).size).to eq(1)
 #      mf.relationships(:has_derivation).size.should == 1
-      derivative.relationships(:is_derivation_of).first.should eq "info:fedora/#{mf.pid}"
+      expect(derivative.relationships(:is_derivation_of).first).to eq "info:fedora/#{mf.pid}"
 #      mf.relationships(:has_derivation).first.should eq "info:fedora/#{derivation.pid}"
 
-      derivative.relationships_are_dirty.should be true
+      expect(derivative.relationships_are_dirty).to be true
 #      mf.relationships_are_dirty.should be true
     end
   end
@@ -63,26 +63,26 @@ describe Derivative do
       prev_count = Derivative.all.count
       @derivative.delete 
 
-      Derivative.all.count.should == prev_count - 1
+      expect(Derivative.all.count).to eq(prev_count - 1)
       log_count = 0
       file = File.new(Avalon::Configuration.lookup('matterhorn.cleanup_log'))
       file.each { |line| log_count += 1 if line.start_with?(job_urls[0]) || line.start_with?(job_urls[1]) }
-      log_count.should == 2
+      expect(log_count).to eq(2)
     end 
 
     it "should not throw error when workflow_id is missing" do
       @derivative.masterfile.workflow_id = nil
       @derivative.delete
-      Derivative.all.count.should == 0
+      expect(Derivative.all.count).to eq(0)
     end
 
     it "should not throw error when workflow doesn't exist in Matterhorn" do
       @derivative.delete
-      Derivative.all.count.should == 0
+      expect(Derivative.all.count).to eq(0)
     end
 
     it "should delete even if retraction fails (VOV-1356)" do
-      pending "Do not test until VOV-1356 is fixed"
+      skip "Do not test until VOV-1356 is fixed"
       pid = @derivative.pid
 
       Rubyhorn.stub_chain(:client,:delete_track).and_raise("Stream not found error")
@@ -108,22 +108,22 @@ describe Derivative do
 
       it "should properly create an RTMP video streaming URL" do
         @d.encoding.video = 'true'
-        @d.streaming_url(false).should == "#{@rtmp_base}/mp4:c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content"
+        expect(@d.streaming_url(false)).to eq("#{@rtmp_base}/mp4:c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content")
       end
 
       it "should properly create an RTMP audio streaming URL" do
         @d.encoding.audio = 'true'
-        @d.streaming_url(false).should == "#{@rtmp_base}/mp4:c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content"
+        expect(@d.streaming_url(false)).to eq("#{@rtmp_base}/mp4:c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content")
       end
 
       it "should properly create an HTTP video streaming URL" do
         @d.encoding.video = 'true'
-        @d.streaming_url(true).should == "#{@http_base}/c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content.mp4.m3u8"
+        expect(@d.streaming_url(true)).to eq("#{@http_base}/c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content.mp4.m3u8")
       end
 
       it "should properly create an HTTP audio streaming URL" do
         @d.encoding.audio = 'true'
-        @d.streaming_url(true).should == "#{@http_base}/c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content.mp4.m3u8"
+        expect(@d.streaming_url(true)).to eq("#{@http_base}/c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content.mp4.m3u8")
       end
     end
 
@@ -134,22 +134,22 @@ describe Derivative do
 
       it "should properly create an RTMP video streaming URL" do
         @d.encoding.video = 'true'
-        @d.streaming_url(false).should == "#{@rtmp_base}/mp4:c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content"
+        expect(@d.streaming_url(false)).to eq("#{@rtmp_base}/mp4:c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content")
       end
 
       it "should properly create an RTMP audio streaming URL" do
         @d.encoding.audio = 'true'
-        @d.streaming_url(false).should == "#{@rtmp_base}/mp4:c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content"
+        expect(@d.streaming_url(false)).to eq("#{@rtmp_base}/mp4:c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content")
       end
 
       it "should properly create an HTTP video streaming URL" do
         @d.encoding.video = 'true'
-        @d.streaming_url(true).should == "#{@http_base}/c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content.mp4.m3u8"
+        expect(@d.streaming_url(true)).to eq("#{@http_base}/c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content.mp4.m3u8")
       end
 
       it "should properly create an HTTP audio streaming URL" do
         @d.encoding.audio = 'true'
-        @d.streaming_url(true).should == "#{@http_base}/audio-only/c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content.mp4.m3u8"
+        expect(@d.streaming_url(true)).to eq("#{@http_base}/audio-only/c5e0f8b8-3f69-40de-9524-604f03b5f867/8c871d4b-a9a6-4841-8e2a-dd98cf2ee625/content.mp4.m3u8")
       end
     end
   end

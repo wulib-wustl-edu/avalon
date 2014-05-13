@@ -13,7 +13,7 @@ describe Users::OmniauthCallbacksController do
     let(:course_name)  { foo_hash[foo_config[:context_name]]                 }
 
     before :each do
-      IMS::LTI::ToolProvider.any_instance.stub(:valid_request!) { true }
+      allow_any_instance_of(IMS::LTI::ToolProvider).to receive(:valid_request!) { true }
       @old_config = Devise.omniauth_configs[:lti].options[:consumers]
       Devise.omniauth_configs[:lti].options[:consumers] = Devise.omniauth_configs[:lti].strategy[:consumers] = lti_config
     end
@@ -50,7 +50,7 @@ describe Users::OmniauthCallbacksController do
       subject { Hash.new }
 
       before :each do
-        Users::OmniauthCallbacksController.any_instance.stub(:user_session) { subject }
+        allow_any_instance_of(Users::OmniauthCallbacksController).to receive(:user_session) { subject }
         post '/users/auth/lti/callback', foo_hash
       end
 
@@ -59,7 +59,7 @@ describe Users::OmniauthCallbacksController do
       end
 
       it "should not be a full login" do
-        expect(subject[:full_login]).to be_false
+        expect(subject[:full_login]).to be_falsey
       end
     end
   end
