@@ -70,7 +70,7 @@ describe MasterFilesController do
        request.env["HTTP_REFERER"] = "/"
      
        @file = fixture_file_upload('/public-domain-book.txt', 'application/json')
-        Rubyhorn.stub_chain(:client,:stop).and_return(true)
+        allow(Rubyhorn).to receive_message_chain(:client,:stop).and_return(true)
 
        expect { post :create, Filedata: [@file], original: 'any', container_id: media_object.pid }.not_to change { MasterFile.count }
      
@@ -143,9 +143,9 @@ describe MasterFilesController do
         #stub Rubyhorn call and return a workflow fixture and check that Derivative.create_from_master_file is called
         xml = File.new("spec/fixtures/matterhorn_workflow_doc.xml")
         doc = Rubyhorn::Workflow.from_xml(xml)
-        Rubyhorn.stub_chain(:client,:instance_xml).and_return(doc)
-        Rubyhorn.stub_chain(:client,:get).and_return(nil)
-        Rubyhorn.stub_chain(:client,:stop).and_return(true)
+        allow(Rubyhorn).to receive_message_chain(:client,:instance_xml).and_return(doc)
+        allow(Rubyhorn).to receive_message_chain(:client,:get).and_return(nil)
+        allow(Rubyhorn).to receive_message_chain(:client,:stop).and_return(true)
         #Thumbnail and poster datastreams must have some content for saving to succeed
         master_file.thumbnail.mimeType = 'image/png'
         master_file.thumbnail.content = 'PNG'
@@ -165,7 +165,7 @@ describe MasterFilesController do
 
     before(:each) do
       login_user master_file.mediaobject.collection.managers.first
-      Rubyhorn.stub_chain(:client,:stop).and_return(true) 
+      allow(Rubyhorn).to receive_message_chain(:client,:stop).and_return(true) 
     end
 
     context "should be deleted" do

@@ -123,8 +123,8 @@ describe MasterFile do
     subject(:masterfile) { derivative.masterfile }
     let(:derivative) {FactoryGirl.create(:derivative)}
     it "should delete (VOV-1805)" do
-      Rubyhorn.stub_chain(:client,:delete_track).and_return("http://test.com/retract_rtmp.xml")
-      Rubyhorn.stub_chain(:client,:delete_hls_track).and_return("http://test.com/retract_hls.xml")
+      allow(Rubyhorn).to receive_message_chain(:client,:delete_track).and_return("http://test.com/retract_rtmp.xml")
+      allow(Rubyhorn).to receive_message_chain(:client,:delete_hls_track).and_return("http://test.com/retract_hls.xml")
       masterfile
       expect { masterfile.delete }.to change { MasterFile.all.count }.by(-1)
     end
