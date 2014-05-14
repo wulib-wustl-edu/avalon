@@ -23,13 +23,13 @@ class StreamToken < ActiveRecord::Base
 
   def self.find_or_create_session_token(session, target)
     self.purge_expired!
-    result = self.find_or_create_by_token_and_target(media_token(session), target)
+    result = self.find_or_create_by(token: media_token(session), target: target)
     result.renew!
     result.token
   end
 
   def self.logout!(session)
-    self.find_all_by_token(media_token(session)).each &:delete
+    self.where(token: media_token(session)).each &:delete
   end
 
   def self.purge_expired!
@@ -40,7 +40,7 @@ class StreamToken < ActiveRecord::Base
     raise Unauthorized, "Unauthorized" if value.nil?
 
     (target, token_string) = value.scan(/^(.+)-(.+)$/).first
-    token = self.find_by_token_and_target(token_string, target)
+    token = self.where(token: token_string, target: target).first
     if token.present? and token.expires > Time.now
       token.renew!
       return target

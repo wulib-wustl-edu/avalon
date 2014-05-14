@@ -74,7 +74,7 @@ describe Avalon::Batch::Ingest do
 
     it 'should set MasterFile details' do
       batch_ingest.ingest
-      ingest_batch = IngestBatch.find(:first)
+      ingest_batch = IngestBatch.first
       media_object = MediaObject.find(ingest_batch.media_object_ids.first) 
       master_file = media_object.parts.first
       expect(master_file.label).to eq('Quis quo')
@@ -100,14 +100,14 @@ describe Avalon::Batch::Ingest do
 
     it 'should set avalon_uploader' do
       batch_ingest.ingest
-      ingest_batch = IngestBatch.find(:first)
+      ingest_batch = IngestBatch.first
       media_object = MediaObject.find(ingest_batch.media_object_ids.first)
       expect(media_object.avalon_uploader).to eq('frances.dickens@reichel.com')
     end
 
     it 'should set hidden' do
       batch_ingest.ingest
-      ingest_batch = IngestBatch.find(:first)
+      ingest_batch = IngestBatch.first
       media_object = MediaObject.find(ingest_batch.media_object_ids.first)
       expect(media_object).not_to be_hidden
 
