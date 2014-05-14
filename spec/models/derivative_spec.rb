@@ -57,8 +57,8 @@ describe Derivative do
       pid = @derivative.pid
 
       job_urls = ["http://test.com/retract_rtmp.xml", "http://test.com/retract_hls.xml"]
-      Rubyhorn.stub_chain(:client,:delete_track).and_return(job_urls[0])
-      Rubyhorn.stub_chain(:client,:delete_hls_track).and_return(job_urls[1])
+      allow(Rubyhorn).to receive_message_chain(:client,:delete_track).and_return(job_urls[0])
+      allow(Rubyhorn).to receive_message_chain(:client,:delete_hls_track).and_return(job_urls[1])
 
       prev_count = Derivative.all.count
       @derivative.delete 
@@ -85,8 +85,8 @@ describe Derivative do
       skip "Do not test until VOV-1356 is fixed"
       pid = @derivative.pid
 
-      Rubyhorn.stub_chain(:client,:delete_track).and_raise("Stream not found error")
-      Rubyhorn.stub_chain(:client,:delete_hls_track).and_raise("Stream not found error")
+      allow(Rubyhorn).to receive_message_chain(:client,:delete_track).and_raise("Stream not found error")
+      allow(Rubyhorn).to receive_message_chain(:client,:delete_hls_track).and_raise("Stream not found error")
 
       expect { @derivative.delete }.to change(Derivative.all.count).by(-1)
     end 
