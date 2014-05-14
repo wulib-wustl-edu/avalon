@@ -90,7 +90,7 @@
     gem 'rvm-capistrano'
     gem 'database_cleaner', git: 'https://github.com/atomical/database_cleaner', branch: 'adding_support_for_active_fedora_orm' # HEAD , tag: 'avalon-r3'
     gem 'factory_girl_rails'
-    gem 'rspec-rails', '=2.99.0.beta2'
+    gem 'rspec-rails', '=3.0.0.beta2'
     gem 'pry'
     gem 'pry-rails'
     gem 'pry-debugger'
