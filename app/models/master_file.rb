@@ -34,7 +34,7 @@ class MasterFile < ActiveFedora::Base
   belongs_to :mediaobject, :class_name=>'MediaObject', :property=>:is_part_of
   has_many :derivatives, :class_name=>'Derivative', :property=>:is_derivation_of
 
-  has_metadata name: 'descMetadata', :type => ActiveFedora::SimpleDatastream do |d|
+  has_metadata name: 'descMetadata', :type => CachingSimpleDatastream.create(self) do |d|
     d.field :file_location, :string
     d.field :file_checksum, :string
     d.field :file_size, :string
@@ -46,7 +46,7 @@ class MasterFile < ActiveFedora::Base
     d.field :thumbnail_offset, :string
   end
 
-  has_metadata name: 'mhMetadata', :type => ActiveFedora::SimpleDatastream do |d|
+  has_metadata name: 'mhMetadata', :type => CachingSimpleDatastream.create(self) do |d|
     d.field :workflow_id, :string
     d.field :workflow_name, :string
     d.field :percent_complete, :string
