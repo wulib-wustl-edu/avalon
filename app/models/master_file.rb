@@ -219,7 +219,7 @@ class MasterFile < ActiveFedora::Base
 
   def stream_details(token,host=nil)
     flash, hls = [], []
-    derivatives.each do |d|
+    ActiveFedora::SolrService.reify_solr_results(derivatives.load_from_solr, load_from_solr: true).each do |d|
       common = { quality: d.encoding.quality.first,
                  mimetype: d.encoding.mime_type.first,
                  format: d.format } 
