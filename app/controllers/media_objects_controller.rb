@@ -98,7 +98,7 @@ class MediaObjectsController < ApplicationController
     authorize! :read, @mediaobject
     respond_to do |format|
       format.html do
-	if (not @masterFiles.empty? and @currentStream.blank?) then
+	      if (not @masterFiles.empty? and @currentStream.blank?) then
           redirect_to media_object_path(@mediaobject.pid), flash: { notice: 'That stream was not recognized. Defaulting to the first available stream for the resource' }
         else 
           render
