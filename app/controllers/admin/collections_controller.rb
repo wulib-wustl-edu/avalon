@@ -84,24 +84,16 @@ class Admin::CollectionsController < ApplicationController
   # PUT /collections/1
   def update
     @collection = Admin::Collection.find(params[:id])
-    if params[:admin_collection].present? && params[:admin_collection][:name].present?
-      if params[:admin_collection][:name] != @collection.name && can?('update_name', @collection)
-        @old_name = @collection.name
-        @collection.name = params[:admin_collection][:name]
-        if @collection.save
-          User.where(username: [RoleControls.users('administrator')].flatten).each do |admin_user|
-            NotificationsMailer.delay.update_collection( 
-              updater_id: current_user.id, 
-              collection_id: @collection.id, 
-              user_id: admin_user.id,
-              old_name: @old_name,
-              subject: "Notification: collection #{@old_name} changed to #{@collection.name}"
-            )
-          end
+    name_changed = false
+    if params[:admin_collection].present?
+      if params[:admin_collection][:name].present?
+        if params[:admin_collection][:name] != @collection.name && can?('update_name', @collection)
+          @old_name = @collection.name
+          @collection.name = params[:admin_collection][:name]
+          name_changed = true
         end
       end
     end
-
     ["manager", "editor", "depositor"].each do |title|
       if params["submit_add_#{title}"].present? 
         if params["add_#{title}"].present? && can?("update_#{title.pluralize}".to_sym, @collection)
@@ -156,13 +148,29 @@ class Admin::CollectionsController < ApplicationController
 
       @collection.default_hidden = params[:hidden] == "1"
     end
-    
-    @collection.save
+
+    @collection.update_attributes params[:admin_collection]    
+    saved = @collection.save
+    if saved and name_changed
+      User.where(username: [RoleControls.users('administrator')].flatten).each do |admin_user|
+        NotificationsMailer.delay.update_collection( 
+          updater_id: current_user.id, 
+          collection_id: @collection.id, 
+          user_id: admin_user.id,
+          old_name: @old_name,
+          subject: "Notification: collection #{@old_name} changed to #{@collection.name}"
+        )
+      end
+    end
+
     respond_to do |format|
       format.html { redirect_to @collection }
-      format.js do 
-        @collection.update_attributes params[:admin_collection]
-        render json: modal_form_response(@collection)
+      format.json do 
+        if saved
+          render json: {id: @collection.pid}, status: 200
+        else
+          render json: {errors: ['Failed to update collection:']+@collection.errors.full_messages}, status: 422
+        end
       end
     end
   end

@@ -64,20 +64,6 @@ Unless required by applicable law or agreed to in writing, software distributed
   </div>
 </div>
 
+<% @collection = Admin::Collection.new %>
 <%= render "form" %>
 
-<% content_for :page_scripts do %>
-  <script>
-    function inject_alert(message) {
-      $('#header-navbar').closest('.container-fluid').after('<div class="container-fluid" id="alerts"><div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert">&times;</button>'+message+'</div></div>');
-    }
-
-    $('form[data-remote][modal]').on('ajax:complete', function(jq_event, xhr) {
-      if (xhr.responseJSON.hasOwnProperty('errors')){
-        $(this).closest('.modal').modal('hide')
-        inject_alert(xhr.responseJSON['errors'].join('<br/>'));
-      }
-      else window.location = 'collections/'+xhr.responseJSON['id'];
-    });
-  </script>
-<% end %>
