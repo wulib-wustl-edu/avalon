@@ -77,7 +77,7 @@ class Admin::CollectionsController < ApplicationController
       end
       render json: {id: @collection.pid}, status: 200
     else
-      render json: {errors: ['Failed to create collection']}, status: 422
+      render json: {errors: ['Failed to create collection:']+@collection.errors.full_messages}, status: 422
     end
   end
   
