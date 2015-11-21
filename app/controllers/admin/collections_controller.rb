@@ -148,8 +148,7 @@ class Admin::CollectionsController < ApplicationController
 
       @collection.default_hidden = params[:hidden] == "1"
     end
-
-    @collection.update_attributes params[:admin_collection]    
+    @collection.update_attributes params[:admin_collection] if params[:admin_collection].present?  
     saved = @collection.save
     if saved and name_changed
       User.where(username: [RoleControls.users('administrator')].flatten).each do |admin_user|
