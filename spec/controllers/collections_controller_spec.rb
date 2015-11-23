@@ -113,21 +113,21 @@ describe Admin::CollectionsController, type: :controller do
   end
 
   describe "#create" do
-    let!(:collection) { FactoryGirl.create(:collection) }
+    let!(:collection) { FactoryGirl.build(:collection) }
     before(:each) { login_as(:administrator) } #Login as admin so there will be at least one administrator to get an email
     it "should notify administrators" do
       mock_delay = double('mock_delay').as_null_object 
       NotificationsMailer.stub(:delay).and_return(mock_delay)
       mock_delay.should_receive(:new_collection)
-      post 'create', admin_collection: {name: collection.name+'-1', description: collection.description, unit: collection.unit, managers: collection.managers}
+      post 'create', admin_collection: {name: collection.name, description: collection.description, unit: collection.unit, managers: collection.managers}
     end
     it "should create a new collection" do
-      post 'create', admin_collection: {name: collection.name+'-2', description: collection.description, unit: collection.unit, managers: collection.managers}
+      post 'create', admin_collection: {name: collection.name, description: collection.description, unit: collection.unit, managers: collection.managers}
       expect(JSON.parse(response.body)['id'].class).to eq String
       expect(JSON.parse(response.body)).not_to include('errors')
     end
     it "should return 422 if collection creation failed" do
-      post 'create', admin_collection: {name: collection.name+'-3', description: collection.description, unit: collection.unit}
+      post 'create', admin_collection: {name: collection.name, description: collection.description, unit: collection.unit}
       expect(response.status).to eq(422)
       expect(JSON.parse(response.body)).to include('errors')
       expect(JSON.parse(response.body)["errors"].class).to eq Array
