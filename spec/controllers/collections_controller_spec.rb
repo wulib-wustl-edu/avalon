@@ -137,8 +137,10 @@ describe Admin::CollectionsController, type: :controller do
   end
 
   describe "#update" do
+    before(:each) do
+      login_as(:administrator)
+    end 
     it "should notify administrators if name changed" do
-      login_as(:administrator) #Login as admin so there will be at least one administrator to get an email
       mock_delay = double('mock_delay').as_null_object 
       NotificationsMailer.stub(:delay).and_return(mock_delay)
       mock_delay.should_receive(:update_collection)
@@ -146,20 +148,8 @@ describe Admin::CollectionsController, type: :controller do
       put 'update', id: @collection.pid, admin_collection: {name: "#{@collection.name}-new", description: @collection.description, unit: @collection.unit}
     end
 
-    context "access controls" do
+    context "update REST API" do
       let!(:collection) { FactoryGirl.create(:collection)}
-
-      before(:each) do
-        login_as(:administrator)
-      end 
-
-      it "should not allow empty user" do
-        expect{ put 'update', id: collection.pid, submit_add_user: "Add", add_user: "", add_user_display: ""}.not_to change{ collection.reload.default_read_users.size }
-      end
-
-      it "should not allow empty class" do
-        expect{ put 'update', id: collection.pid, submit_add_class: "Add", add_class: "", add_class_display: ""}.not_to change{ collection.reload.default_read_groups.size }
-      end
 
       it "should update a collection via API" do
         old_description = collection.description
@@ -176,6 +166,18 @@ describe Admin::CollectionsController, type: :controller do
         expect(JSON.parse(response.body)).to include('errors')
         expect(JSON.parse(response.body)["errors"].class).to eq Array
         expect(JSON.parse(response.body)["errors"].first.class).to eq String
+      end
+    end
+
+    context "access controls" do
+      let!(:collection) { FactoryGirl.create(:collection)}
+
+      it "should not allow empty user" do
+        expect{ put 'update', id: collection.pid, submit_add_user: "Add", add_user: "", add_user_display: ""}.not_to change{ collection.reload.default_read_users.size }
+      end
+
+      it "should not allow empty class" do
+        expect{ put 'update', id: collection.pid, submit_add_class: "Add", add_class: "", add_class_display: ""}.not_to change{ collection.reload.default_read_groups.size }
       end
 
     end
