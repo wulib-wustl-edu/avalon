@@ -161,6 +161,23 @@ describe Admin::CollectionsController, type: :controller do
         expect{ put 'update', id: collection.pid, submit_add_class: "Add", add_class: "", add_class_display: ""}.not_to change{ collection.reload.default_read_groups.size }
       end
 
+      it "should update a collection via API" do
+        old_description = collection.description
+        put 'update', format: 'json', id: collection.pid, admin_collection: {description: collection.description+'new'}
+        expect(JSON.parse(response.body)['id'].class).to eq String
+        expect(JSON.parse(response.body)).not_to include('errors')
+        collection.reload
+        expect(collection.description).to eq old_description+'new'
+      end
+      it "should return 422 if collection update via API failed" do
+        allow_any_instance_of(Admin::Collection).to receive(:save).and_return false
+        put 'update', format: 'json', id: collection.pid, admin_collection: {description: collection.description+'new'}
+        expect(response.status).to eq(422)
+        expect(JSON.parse(response.body)).to include('errors')
+        expect(JSON.parse(response.body)["errors"].class).to eq Array
+        expect(JSON.parse(response.body)["errors"].first.class).to eq String
+      end
+
     end
   end
 end
